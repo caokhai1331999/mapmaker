@@ -18,11 +18,13 @@
 // just need to create its position for memory benefit
 
 typedef uint8_t uint8;
+typedef uint16_t uint16;
 
-const float WALL_RATIO = 0.35;
 // NOTE: Cause the map is alway a rectagle or square
 // 5 is a reasonable number of wall chunks
+const float WALL_RATIO = 0.35;
 const uint8 WALL_CHUNK_NUMBER = 5;
+const uint16 WALL_SHAPE[] = {};
 
 struct Specs{
     uint8 ID = 0;
@@ -87,6 +89,7 @@ void printMenu(){
 void constructWall(MapStructures* map = nullptr){
 
     uint8 WallChunkAvgSize = map->wallSize/WALL_CHUNK_NUMBER;
+    printf("Wall chunk average size is: %hhd\n", WallChunkAvgSize);
     //NOTE: ??? How to make the wall chunk looked randomly naturual
     // instead of group of equal size and the offseted last one
 
@@ -97,14 +100,18 @@ void constructWall(MapStructures* map = nullptr){
     for (uint8 i = 0; i < WALL_CHUNK_NUMBER; i++){
 
         if(i < WALL_CHUNK_NUMBER - 1){            
+
             // NOTE: size of each chunk first
-            map->WallChunk[i].sizee =(int)(((rand()%10)+78)*WallChunkAvgSize)/100;
+            map->WallChunk[i].sizee = (uint8)(((rand()%10)+89)*WallChunkAvgSize/100);            
+            // While it created garbage value
             countSize += map->WallChunk[i].sizee;
+
         } else {
             map->WallChunk[i].sizee = map->wallSize - countSize;           
         }
+        printf("Wall chunk %hhd size is:%hhd\n", i, map->WallChunk[i].sizee);
         map->WallChunk[i].positionn = i*chunkDistance;
-        
+        printf("Wall chunk %hhd position is:%hhd\n", i, map->WallChunk[i].positionn);        
         // if(map->WallChunk[i].specs != nullptr){
         //     delete[] map->WallChunk[i].specs;
         //     map->WallChunk[i].specs = nullptr;
@@ -112,15 +119,18 @@ void constructWall(MapStructures* map = nullptr){
 
         map->WallChunk[i].specs = new Specs[map->WallChunk[i].sizee];            
 
-    // ==================================================
-    // NOTE: And this is for implementing every wall of each chunk
-        for(uint8 j = 0; j < map->WallChunk[i].sizee - 1; j++){
+        // ==================================================
+        // NOTE: And this is for implementing every wall of each chunk
+        for(uint8 j = 0; j < map->WallChunk[i].sizee; j++){
+            // NOTE: Time to create a set of fixed shape of wall chunks
+            // then randomize among them
             map->WallChunk[i].specs[j].ID = map->wallID[rand()%(map->WallIDno -1)];
-            map->WallChunk[i].specs[j].Position = map->WallChunk[i].positionn*j;
+            map->WallChunk[i].specs[j].Position = j!=0? map->WallChunk[i].positionn*j:map->WallChunk[i].positionn;
+            printf("Wall pos %hhd ID is: %hhd\n", map->WallChunk[i].specs[j].Position, map->WallChunk[i].specs[j].ID);
             // NOTE: I Think I need to decide the each chunk range first and
-            // each wall in them later
-            
+            // each wall in them later            
         }        
+        // 
     }
 }
 
@@ -274,17 +284,16 @@ int main(int argc, char* argv[]){
     bool Optionchange = false;
     // char* MapContent = nullptr;
     char Option = 0;
-    
+    uint8 j = 0;    
+
     while(Option != 'Q'){
         Option = MenuAndChoice();
         switch(Option){
             case 'M':                
                 printf("Firstly, Number of Map's columns: \n");
                 scanf(" %hhd", &mapStructure->row);
-                printf("So the Number of Map's columns is: %hhd\n", mapStructure->row);
                 printf("Now, Number of Map's rows: \n");
                 scanf(" %hhd", &mapStructure->column);
-                printf("So the Number of Map's columns is: %hhd\n", mapStructure->column);
                 
                 // NOTE:===================================================
                 printf("Then, Number of Map's Tile's types: \n");
@@ -305,15 +314,14 @@ int main(int argc, char* argv[]){
                 };
 
                 // NOTE: ?? Why this wall size is 8 while the MaxWtileID - MinWtileID + 1 is supposed to be 3
-                mapStructure->WallIDno = MaxWtileID - MinWtileID + 1;
-                printf("Wall ID number is: %hhd\n", mapStructure->WallIDno);
+
+                mapStructure->WallIDno = (uint8)MaxWtileID - MinWtileID + 1;
                 mapStructure->wallID = new uint8[mapStructure->WallIDno]();
-                printf("Size of wallID supposed to be: %d\n", MaxWtileID - MinWtileID + 1);
 
                 for(uint8 i = 0; i < (MaxWtileID - MinWtileID + 1); i++){
                     // NOTE: Heap overflowing happened here
                     mapStructure->wallID[i] = MinWtileID + i;
-                    printf("WallID Count i :%d\n", (int)i);
+                    printf("WallID %d is :%d\n", (int)i, (int)mapStructure->wallID[i]);
                 }
 
                 if(mapStructure->bgrID != nullptr){
@@ -323,11 +331,13 @@ int main(int argc, char* argv[]){
 
                 mapStructure->BgrIDno = TileIDs - mapStructure->WallIDno;
                 mapStructure->bgrID = new uint8[mapStructure->BgrIDno]();
-                
-                for(uint8 i = 0; i < mapStructure->BgrIDno - 1; i++){
+
+                j = 0;
+                for(uint8 i = 0; i < TileIDs; i++){
                     if(!(i >= MinWtileID && i <= MaxWtileID)){
-                        mapStructure->bgrID[i] = i;
-                        printf("BackGroundID Count i :%d\n", (int)i);
+                        mapStructure->bgrID[j] = i;
+                        printf("BackGroundID %d is :%d\n", (int)j,(int)mapStructure->bgrID[j]);
+                        j++;
                     }
                 }                
                                 
