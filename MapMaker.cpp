@@ -24,7 +24,7 @@ typedef uint16_t uint16;
 // 5 is a reasonable number of wall chunks
 const float WALL_RATIO = 0.35;
 const uint8 WALL_CHUNK_NUMBER = 5;
-const uint16 WALL_SHAPE[] = {};
+const uint16 WALL_SHAPE[5] = {0x9FF9, 0x6FF6, 0x3FFC, 0xFF33, 0xCCFF};
 
 struct Specs{
     uint8 ID = 0;
@@ -86,6 +86,19 @@ void printMenu(){
     printf("                       Q: Quit \n");
 }
 
+void MakeWallChunk(WallChunk* chunk){
+    uint16 chosenShape = WALL_SHAPE[(rand()%4)];
+    int i = 0;
+    while(i < 4){
+        // WORKING!! ===========================
+        chosenShape
+        for(int j = 0; j < 4; j++){
+            if(power(2,j))
+        }
+        // ======================================
+    };
+}
+
 void constructWall(MapStructures* map = nullptr){
 
     uint8 WallChunkAvgSize = map->wallSize/WALL_CHUNK_NUMBER;
@@ -109,9 +122,11 @@ void constructWall(MapStructures* map = nullptr){
         } else {
             map->WallChunk[i].sizee = map->wallSize - countSize;           
         }
+
         printf("Wall chunk %hhd size is:%hhd\n", i, map->WallChunk[i].sizee);
         map->WallChunk[i].positionn = i*chunkDistance;
         printf("Wall chunk %hhd position is:%hhd\n", i, map->WallChunk[i].positionn);        
+
         // if(map->WallChunk[i].specs != nullptr){
         //     delete[] map->WallChunk[i].specs;
         //     map->WallChunk[i].specs = nullptr;
@@ -125,7 +140,7 @@ void constructWall(MapStructures* map = nullptr){
             // NOTE: Time to create a set of fixed shape of wall chunks
             // then randomize among them
             map->WallChunk[i].specs[j].ID = map->wallID[rand()%(map->WallIDno -1)];
-            map->WallChunk[i].specs[j].Position = j!=0? map->WallChunk[i].positionn*j:map->WallChunk[i].positionn;
+            map->WallChunk[i].specs[j].Position = (map->WallChunk[i].positionn*(j+1));
             printf("Wall pos %hhd ID is: %hhd\n", map->WallChunk[i].specs[j].Position, map->WallChunk[i].specs[j].ID);
             // NOTE: I Think I need to decide the each chunk range first and
             // each wall in them later            
